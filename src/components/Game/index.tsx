@@ -3,38 +3,51 @@ import CalculateWinner from '../../utils/calculateWinner';
 import Board from '../Board';
 
 const Game: React.FC = () => {
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [xIsNext, setXIsNext] = useState(true);
-  const winner = CalculateWinner(board);
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [stepNumber, setStepNumber] = useState(0);
+  const [xIsNext, setXisNext] = useState(true);
+  const winner = CalculateWinner(history[stepNumber]);
 
   const handleClick = useCallback(
     (position: number) => {
-      const boardCopy = [...board];
-      if (winner || boardCopy[position]) return;
+      const timeInHistory = history.slice(0, stepNumber + 1);
+      const current = timeInHistory[stepNumber];
+      const squares = [...current];
 
-      boardCopy[position] = xIsNext ? 'X' : 'O';
-      setBoard(boardCopy);
-      setXIsNext(!xIsNext);
+      if (winner || squares[position]) return;
+
+      squares[position] = xIsNext ? 'X' : 'O';
+      setHistory([...timeInHistory, squares]);
+      setStepNumber(timeInHistory.length);
+      setXisNext(!xIsNext);
     },
-    [xIsNext, setXIsNext, board, winner]
+
+    [xIsNext, setXisNext, history, winner, stepNumber]
   );
 
-  const jumpTo = useCallback(() => {
-    console.log('jump to');
+  const jumpTo = useCallback((step: number) => {
+    setStepNumber(step);
+    setXisNext(step % 2 === 0);
   }, []);
 
   const renderMoves = useCallback(
-    () => (
-      <button type="button" onClick={() => setBoard(Array(9).fill(null))}>
-        Start Game
-      </button>
-    ),
-    []
+    () =>
+      history.map((_step, move) => {
+        const destination = move ? `Go to move#${move}` : 'Go to start';
+        return (
+          <li key={move}>
+            <button type="button" onClick={() => jumpTo(move)}>
+              {destination}
+            </button>
+          </li>
+        );
+      }),
+    [history, jumpTo]
   );
 
   return (
     <>
-      <Board squares={board} onClick={handleClick} />
+      <Board squares={history[stepNumber]} onClick={handleClick} />
       <div>
         <p>
           {winner ? `Winner: ${winner}` : `Next Player:${xIsNext ? 'X' : 'O'}`}
