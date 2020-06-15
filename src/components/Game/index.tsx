@@ -52,6 +52,7 @@ const Game: React.FC = () => {
 
     if (step === 0) {
       setHistory([Array(9).fill(null)]);
+      setShowBoard(false);
     }
   }, []);
 
@@ -79,7 +80,6 @@ const Game: React.FC = () => {
             id="player1"
             placeholder="Player 1"
             type="text"
-            value={playerOne}
             onChange={(e) => setPlayerOne(e.target.value)}
           />
 
@@ -87,7 +87,6 @@ const Game: React.FC = () => {
             id="player2"
             placeholder="Player 2"
             type="text"
-            value={playerTwo}
             onChange={(e) => setPlayerTwo(e.target.value)}
           />
 
