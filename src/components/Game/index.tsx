@@ -101,7 +101,7 @@ const Game: React.FC = () => {
             <p>
               {winner
                 ? `Winner: ${winner}`
-                : `Next Player → ${xIsNext ? 'X' : 'O'}`}
+                : `Next Player → ${xIsNext ? playerOne : playerTwo}`}
             </p>
             {renderMoves()}
           </Actions>
