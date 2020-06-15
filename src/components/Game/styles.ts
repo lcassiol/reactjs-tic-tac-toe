@@ -8,6 +8,39 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
+export const Title = styled.span`
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 36px;
+  font-weight: bold;
+`;
+
+export const Form = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+
+  margin-top: 30px;
+  margin-bottom: 30px;
+
+  input {
+    height: 30px;
+    font-size: 16px;
+  }
+
+  input + input {
+    margin-top: 5px;
+  }
+
+  button {
+    margin-top: 15px;
+    height: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: lightgreen;
+  }
+`;
+
 export const Actions = styled.div`
   display: flex;
   flex-direction: column;
@@ -24,13 +57,6 @@ export const Actions = styled.div`
       margin-bottom: 5px;
     }
   }
-`;
-
-export const Title = styled.span`
-  margin-top: 20px;
-  margin-bottom: 20px;
-  font-size: 36px;
-  font-weight: bold;
 `;
 
 export const Ranking = styled.div`
