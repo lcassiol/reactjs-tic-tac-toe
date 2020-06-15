@@ -100,7 +100,7 @@ const Game: React.FC = () => {
           <Actions>
             <p>
               {winner
-                ? `Winner: ${winner}`
+                ? `Winner: ${winner === 'X' ? playerOne : playerTwo}!!`
                 : `Next Player → ${xIsNext ? playerOne : playerTwo}`}
             </p>
             {renderMoves()}
