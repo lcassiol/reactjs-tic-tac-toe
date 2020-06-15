@@ -1,6 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import CalculateWinner from '../../utils/calculateWinner';
 import Board from '../Board';
+import {
+  Container,
+  Title,
+  Actions,
+  Ranking,
+  Players,
+  Position,
+  PlayerName,
+} from './styles';
 
 const Game: React.FC = () => {
   const [history, setHistory] = useState([Array(9).fill(null)]);
@@ -28,33 +37,59 @@ const Game: React.FC = () => {
   const jumpTo = useCallback((step: number) => {
     setStepNumber(step);
     setXisNext(step % 2 === 0);
+
+    if (step === 0) {
+      setHistory([Array(9).fill(null)]);
+    }
   }, []);
 
   const renderMoves = useCallback(
     () =>
       history.map((_step, move) => {
-        const destination = move ? `Go to move#${move}` : 'Go to start';
+        const destination = move ? `Go to move#${move}` : 'Reset';
         return (
-          <li key={move}>
+          <span key={move}>
             <button type="button" onClick={() => jumpTo(move)}>
               {destination}
             </button>
-          </li>
+          </span>
         );
       }),
     [history, jumpTo]
   );
 
   return (
-    <>
-      <Board squares={history[stepNumber]} onClick={handleClick} />
+    <Container>
+      <Title>Tic Tac Toe - Typescript ReactJS</Title>
       <div>
-        <p>
-          {winner ? `Winner: ${winner}` : `Next Player:${xIsNext ? 'X' : 'O'}`}
-        </p>
-        {renderMoves()}
+        <Board squares={history[stepNumber]} onClick={handleClick} />
+        <Actions>
+          <p>
+            {winner
+              ? `Winner: ${winner}`
+              : `Next Player → ${xIsNext ? 'X' : 'O'}`}
+          </p>
+          {renderMoves()}
+        </Actions>
       </div>
-    </>
+      <Ranking>
+        <p>Ranking</p>
+        <Players>
+          <div>
+            <Position>1</Position>
+            <PlayerName>Cassio</PlayerName>
+          </div>
+          <div>
+            <Position>2</Position>
+            <PlayerName>Tiago</PlayerName>
+          </div>
+          <div>
+            <Position>3</Position>
+            <PlayerName>Daniel</PlayerName>
+          </div>
+        </Players>
+      </Ranking>
+    </Container>
   );
 };
 
