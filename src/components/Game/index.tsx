@@ -30,12 +30,15 @@ const Game: React.FC = () => {
   useEffect(() => {
     const rankingStorage = localStorage.getItem('@tictactoe:ranking');
     if (rankingStorage) {
-      const rankingArray = JSON.parse(rankingStorage);
+      const rankingArray: Ranking[] = JSON.parse(rankingStorage);
+
       setRanking(rankingArray);
     }
   }, []);
 
   useEffect(() => {
+    console.log('Calculate winner');
+    console.log(history);
     const result = CalculateWinner(history[stepNumber]);
 
     if (result) {
@@ -52,7 +55,7 @@ const Game: React.FC = () => {
         (player) => player.player === loserName
       );
 
-      if (winnerIndex) {
+      if (winnerIndex >= 0) {
         newRanking[winnerIndex] = {
           ...newRanking[winnerIndex],
           points: newRanking[winnerIndex].points + 1,
@@ -64,20 +67,19 @@ const Game: React.FC = () => {
         });
       }
 
-      if (loserIndex) {
-        newRanking[loserIndex] = {
-          ...newRanking[loserIndex],
-          points: newRanking[loserIndex].points - 1,
-        };
-      } else {
+      if (loserIndex < 0) {
         newRanking.push({
           player: loserName,
-          points: -1,
+          points: 0,
         });
       }
 
-      localStorage.setItem('@tictactoe:ranking', JSON.stringify(newRanking));
-      setRanking(newRanking);
+      const sortedRanking = newRanking.sort((item, nextItem) =>
+        Number(item.points) < Number(nextItem.points) ? 1 : -1
+      );
+
+      localStorage.setItem('@tictactoe:ranking', JSON.stringify(sortedRanking));
+      setRanking(sortedRanking);
       setWinner(winnerName);
     }
   }, [stepNumber, playerOne, playerTwo, ranking, history]);
@@ -89,6 +91,13 @@ const Game: React.FC = () => {
       alert('Players need a name');
     }
   }, [playerOne, playerTwo, setShowBoard]);
+
+  const handleChangePlayers = useCallback(() => {
+    setStepNumber(0);
+    setWinner(null);
+    setShowBoard(false);
+    setHistory([Array(9).fill(null)]);
+  }, []);
 
   const handleClick = useCallback(
     (position: number) => {
@@ -113,24 +122,32 @@ const Game: React.FC = () => {
 
     if (step === 0) {
       setHistory([Array(9).fill(null)]);
-      setShowBoard(false);
+      setWinner(null);
     }
   }, []);
 
-  const renderMoves = useCallback(
-    () =>
-      history.map((_step, move) => {
-        const destination = move ? `Go to move#${move}` : 'Reset';
-        return (
-          <span key={move}>
-            <button type="button" onClick={() => jumpTo(move)}>
-              {destination}
-            </button>
-          </span>
-        );
-      }),
-    [history, jumpTo]
-  );
+  const renderMoves = useCallback(() => {
+    if (winner) {
+      return (
+        <span>
+          <button type="button" onClick={() => jumpTo(0)}>
+            Reset
+          </button>
+        </span>
+      );
+    }
+
+    return history.map((_step, move) => {
+      const destination = move ? `Go to move#${move}` : 'Reset';
+      return (
+        <span key={move}>
+          <button type="button" onClick={() => jumpTo(move)}>
+            {destination}
+          </button>
+        </span>
+      );
+    });
+  }, [history, jumpTo, winner]);
 
   return (
     <Container>
@@ -157,6 +174,11 @@ const Game: React.FC = () => {
         </Form>
       ) : (
         <div>
+          <span style={{ marginLeft: 60 }}>
+            <button type="button" onClick={handleChangePlayers}>
+              Change Players
+            </button>
+          </span>
           <Board squares={history[stepNumber]} onClick={handleClick} />
           <Actions>
             <p>
@@ -164,6 +186,7 @@ const Game: React.FC = () => {
                 ? `Winner: ${winner}!!`
                 : `Next Player → ${xIsNext ? playerOne : playerTwo}`}
             </p>
+
             {renderMoves()}
           </Actions>
         </div>
@@ -172,14 +195,12 @@ const Game: React.FC = () => {
       <Ranking>
         <p>Ranking</p>
         <Players>
-          <div>
-            <Position>1</Position>
-            <PlayerName>Cassio</PlayerName>
-          </div>
-          <div>
-            <Position>2</Position>
-            <PlayerName>Rafaela</PlayerName>
-          </div>
+          {ranking.map((rank, index) => (
+            <div key={index}>
+              <Position>{index + 1}</Position>
+              <PlayerName>{rank.player}</PlayerName>
+            </div>
+          ))}
         </Players>
       </Ranking>
     </Container>

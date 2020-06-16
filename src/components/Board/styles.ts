@@ -8,4 +8,5 @@ export const Container = styled.div`
   margin: 0 auto;
   display: grid;
   grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  margin-top: 10px;
 `;
