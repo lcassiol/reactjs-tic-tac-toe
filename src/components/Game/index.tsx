@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import CalculateWinner from '../../utils/calculateWinner';
 import Board from '../Board';
 import {
@@ -12,6 +12,11 @@ import {
   PlayerName,
 } from './styles';
 
+interface Ranking {
+  player: string;
+  points: number;
+}
+
 const Game: React.FC = () => {
   const [playerOne, setPlayerOne] = useState('');
   const [playerTwo, setPlayerTwo] = useState('');
@@ -19,7 +24,63 @@ const Game: React.FC = () => {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [stepNumber, setStepNumber] = useState(0);
   const [xIsNext, setXisNext] = useState(true);
-  const winner = CalculateWinner(history[stepNumber]);
+  const [winner, setWinner] = useState<string | null>(null);
+  const [ranking, setRanking] = useState<Ranking[]>([]);
+
+  useEffect(() => {
+    const rankingStorage = localStorage.getItem('@tictactoe:ranking');
+    if (rankingStorage) {
+      const rankingArray = JSON.parse(rankingStorage);
+      setRanking(rankingArray);
+    }
+  }, []);
+
+  useEffect(() => {
+    const result = CalculateWinner(history[stepNumber]);
+
+    if (result) {
+      const winnerName = result === 'X' ? playerOne : playerTwo;
+      const loserName = result === 'X' ? playerTwo : playerOne;
+
+      const newRanking = ranking;
+
+      const winnerIndex = ranking.findIndex(
+        (player) => player.player === winnerName
+      );
+
+      const loserIndex = ranking.findIndex(
+        (player) => player.player === loserName
+      );
+
+      if (winnerIndex) {
+        newRanking[winnerIndex] = {
+          ...newRanking[winnerIndex],
+          points: newRanking[winnerIndex].points + 1,
+        };
+      } else {
+        newRanking.push({
+          player: winnerName,
+          points: 1,
+        });
+      }
+
+      if (loserIndex) {
+        newRanking[loserIndex] = {
+          ...newRanking[loserIndex],
+          points: newRanking[loserIndex].points - 1,
+        };
+      } else {
+        newRanking.push({
+          player: loserName,
+          points: -1,
+        });
+      }
+
+      localStorage.setItem('@tictactoe:ranking', JSON.stringify(newRanking));
+      setRanking(newRanking);
+      setWinner(winnerName);
+    }
+  }, [stepNumber, playerOne, playerTwo, ranking, history]);
 
   const handleStartGame = useCallback(() => {
     if (playerOne && playerTwo) {
@@ -100,7 +161,7 @@ const Game: React.FC = () => {
           <Actions>
             <p>
               {winner
-                ? `Winner: ${winner === 'X' ? playerOne : playerTwo}!!`
+                ? `Winner: ${winner}!!`
                 : `Next Player → ${xIsNext ? playerOne : playerTwo}`}
             </p>
             {renderMoves()}
