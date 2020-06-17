@@ -2,8 +2,8 @@ import React from 'react';
 import './App.css';
 import Game from './components/Game';
 
-function App() {
+const App: React.FC = () => {
   return <Game />;
-}
+};
 
 export default App;
